@@ -1,0 +1,264 @@
+import { BarChart3, Calendar, CheckCircle, FolderOpen, Plus, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+
+// Mock data
+const stats = [
+  {
+    title: "Total Projects",
+    value: "12",
+    change: "+2 this month",
+    icon: FolderOpen,
+    gradient: "icog-gradient-bg",
+  },
+  {
+    title: "Active Tasks",
+    value: "34",
+    change: "+8 this week",
+    icon: CheckCircle,
+    gradient: "bg-success",
+  },
+  {
+    title: "Meetings This Week",
+    value: "8",
+    change: "3 completed",
+    icon: Calendar,
+    gradient: "bg-secondary",
+  },
+  {
+    title: "Pending Actions",
+    value: "6",
+    change: "2 overdue",
+    icon: TrendingUp,
+    gradient: "bg-warning",
+  },
+];
+
+const recentActivity = [
+  {
+    id: 1,
+    action: "Project Alpha launched",
+    user: "Sarah Chen",
+    avatar: "/api/placeholder/32/32",
+    time: "2 hours ago",
+    type: "project",
+  },
+  {
+    id: 2,
+    action: "Task 'Fix login issues' completed",
+    user: "Mike Johnson",
+    avatar: "/api/placeholder/32/32",
+    time: "4 hours ago",
+    type: "task",
+  },
+  {
+    id: 3,
+    action: "Weekly standup scheduled",
+    user: "AI Assistant",
+    avatar: null,
+    time: "6 hours ago",
+    type: "meeting",
+  },
+  {
+    id: 4,
+    action: "New team member added",
+    user: "Emma Wilson",
+    avatar: "/api/placeholder/32/32",
+    time: "1 day ago",
+    type: "team",
+  },
+];
+
+const upcomingTasks = [
+  {
+    id: 1,
+    title: "Review project proposal",
+    project: "Project Alpha",
+    dueDate: "Today",
+    status: "urgent",
+  },
+  {
+    id: 2,
+    title: "Update documentation",
+    project: "Project Beta",
+    dueDate: "Tomorrow",
+    status: "normal",
+  },
+  {
+    id: 3,
+    title: "Client presentation prep",
+    project: "Project Gamma",
+    dueDate: "This week",
+    status: "normal",
+  },
+];
+
+const recentMeetings = [
+  {
+    id: 1,
+    title: "Weekly Team Sync",
+    date: "Today, 10:00 AM",
+    attendees: 5,
+    summary: "Discussed project progress and upcoming deadlines",
+  },
+  {
+    id: 2,
+    title: "Project Alpha Review",
+    date: "Yesterday, 2:00 PM",
+    attendees: 3,
+    summary: "Reviewed deliverables and next steps",
+  },
+  {
+    id: 3,
+    title: "Client Feedback Session",
+    date: "Monday, 11:00 AM",
+    attendees: 7,
+    summary: "Gathered feedback on latest features",
+  },
+];
+
+export default function Dashboard() {
+  return (
+    <div className="space-y-6 icog-animate-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back! Here's what's happening with your projects.
+          </p>
+        </div>
+        <Button className="icog-button-primary">
+          <Plus className="mr-2 h-4 w-4" />
+          Quick Start
+        </Button>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.title} className="icog-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {stat.title}
+              </CardTitle>
+              <div className={`p-2 rounded-lg ${stat.gradient}`}>
+                <stat.icon className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {stat.change}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Activity Feed */}
+        <Card className="icog-card">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <BarChart3 className="mr-2 h-5 w-5" />
+              Recent Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentActivity.map((activity) => (
+                <div key={activity.id} className="flex items-center space-x-3">
+                  <Avatar className="h-8 w-8">
+                    {activity.avatar ? (
+                      <AvatarImage src={activity.avatar} alt={activity.user} />
+                    ) : (
+                      <AvatarFallback className="icog-gradient-bg text-white text-xs">
+                        AI
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{activity.action}</p>
+                    <p className="text-xs text-muted-foreground">
+                      by {activity.user} • {activity.time}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="capitalize">
+                    {activity.type}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Tasks */}
+        <Card className="icog-card">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CheckCircle className="mr-2 h-5 w-5" />
+              Upcoming Tasks
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {upcomingTasks.map((task) => (
+                <div key={task.id} className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="font-medium">{task.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {task.project}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge
+                      variant={task.status === "urgent" ? "destructive" : "secondary"}
+                    >
+                      {task.dueDate}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+              <Button variant="outline" className="w-full mt-4">
+                View All Tasks
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Meetings */}
+      <Card className="icog-card">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Calendar className="mr-2 h-5 w-5" />
+            Recent Meetings
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentMeetings.map((meeting) => (
+              <div key={meeting.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium">{meeting.title}</h3>
+                  <Badge variant="outline">{meeting.attendees} attendees</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {meeting.date}
+                </p>
+                <p className="text-sm">{meeting.summary}</p>
+                <Button variant="ghost" size="sm" className="mt-2 text-primary">
+                  View Summary
+                </Button>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

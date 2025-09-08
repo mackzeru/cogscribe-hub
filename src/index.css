@@ -2,41 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* iCog Sync Design System - Modern AI-Powered Dashboard */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base colors */
+    --background: 250 250% 99%;
+    --foreground: 224 15% 15%;
 
+    /* Card system */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 224 15% 15%;
 
+    /* Interactive elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 224 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* iCog Sync Brand Colors - Blue & Purple Theme */
+    --primary: 217 91% 59%; /* Blue #3B82F6 */
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 217 91% 54%;
+    --primary-glow: 217 91% 70%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 262 52% 62%; /* Purple #8B5CF6 */
+    --secondary-foreground: 0 0% 98%;
+    --secondary-hover: 262 52% 57%;
+    --secondary-glow: 262 52% 72%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Neutral system */
+    --muted: 220 13% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 13% 96%;
+    --accent-foreground: 224 15% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
 
-    --radius: 0.5rem;
+    --warning: 48 96% 53%;
+    --warning-foreground: 224 15% 15%;
+
+    /* UI elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 59%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --gradient-subtle: linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--secondary) / 0.05));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 13% 98%));
+
+    /* Shadows */
+    --shadow-elegant: 0 4px 20px -4px hsl(var(--primary) / 0.1);
+    --shadow-card: 0 1px 3px 0 hsl(220 13% 85% / 0.3), 0 1px 2px 0 hsl(220 13% 85% / 0.06);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.3);
+
+    /* Animation */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bouncy: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +130,85 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer components {
+  /* iCog Sync custom component classes */
+  .icog-card {
+    @apply bg-card border border-border rounded-lg shadow-[var(--shadow-card)] transition-[var(--transition-smooth)];
+  }
+
+  .icog-button-primary {
+    @apply bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-[var(--shadow-elegant)] transition-[var(--transition-smooth)];
+  }
+
+  .icog-button-secondary {
+    @apply bg-secondary hover:bg-[hsl(var(--secondary-hover))] text-secondary-foreground shadow-[var(--shadow-elegant)] transition-[var(--transition-smooth)];
+  }
+
+  .icog-gradient-bg {
+    background: var(--gradient-primary);
+  }
+
+  .icog-gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+
+  .icog-text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .icog-status-todo {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  .icog-status-progress {
+    @apply bg-primary/10 text-primary border-primary/20;
+  }
+
+  .icog-status-done {
+    @apply bg-success/10 text-success border-success/20;
+  }
+
+  .icog-status-blocked {
+    @apply bg-destructive/10 text-destructive border-destructive/20;
+  }
+
+  .icog-animate-in {
+    animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
