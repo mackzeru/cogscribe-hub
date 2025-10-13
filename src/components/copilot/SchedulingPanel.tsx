@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Clock } from "lucide-react";
 
 interface SchedulingPanelProps {
@@ -28,6 +30,17 @@ export const SchedulingPanel = ({
   selectedTime,
   setSelectedTime,
 }: SchedulingPanelProps) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const slotsPerPage = 6;
+
+  const totalPages = Math.ceil(timeSlots.length / slotsPerPage);
+  const startIndex = (currentPage - 1) * slotsPerPage;
+  const paginatedSlots = timeSlots.slice(startIndex, startIndex + slotsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="grid md:grid-cols-2 gap-6">
       {/* Left Panel - Calendar */}
@@ -39,7 +52,10 @@ export const SchedulingPanel = ({
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={setSelectedDate}
+            onSelect={(date) => {
+              setSelectedDate(date);
+              setCurrentPage(1);
+            }}
             disabled={(date) => date < new Date()}
             className="rounded-md border"
           />
@@ -60,17 +76,50 @@ export const SchedulingPanel = ({
               Please select a date first
             </p>
           ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {timeSlots.map((time) => (
-                <Button
-                  key={time}
-                  variant={selectedTime === time ? "default" : "outline"}
-                  onClick={() => setSelectedTime(time)}
-                  className="w-full"
-                >
-                  {time}
-                </Button>
-              ))}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2 min-h-[240px]">
+                {paginatedSlots.map((time) => (
+                  <Button
+                    key={time}
+                    variant={selectedTime === time ? "default" : "outline"}
+                    onClick={() => setSelectedTime(time)}
+                    className="w-full"
+                  >
+                    {time}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
             </div>
           )}
         </CardContent>

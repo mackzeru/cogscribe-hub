@@ -7,8 +7,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { CopilotSelection } from "./CopilotSelection";
 import { SchedulingPanel } from "./SchedulingPanel";
+import { format } from "date-fns";
 
 interface CopilotSchedulingDialogProps {
   open: boolean;
@@ -19,6 +21,7 @@ export const CopilotSchedulingDialog = ({
   open,
   onOpenChange,
 }: CopilotSchedulingDialogProps) => {
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [selectedCopilot, setSelectedCopilot] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -30,11 +33,17 @@ export const CopilotSchedulingDialog = ({
   };
 
   const handleSchedule = () => {
-    console.log("Scheduling interview:", {
-      copilot: selectedCopilot,
-      date: selectedDate,
-      time: selectedTime,
+    const copilotName = selectedCopilot
+      ?.split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    toast({
+      title: "✅ Interview Scheduled Successfully",
+      description: `Your interview with ${copilotName} is confirmed for ${selectedDate ? format(selectedDate, "MMMM d, yyyy") : ""} at ${selectedTime}.`,
+      duration: 5000,
     });
+
     // Reset and close
     setStep(1);
     setSelectedCopilot(null);
