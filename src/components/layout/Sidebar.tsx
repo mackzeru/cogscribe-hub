@@ -6,6 +6,7 @@ import {
   CheckSquare,
   Calendar,
   Users,
+  Bot,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -37,6 +38,11 @@ const navigation = [
     name: "Team",
     href: "/team",
     icon: Users,
+  },
+  {
+    name: "Copilot",
+    href: "/copilot",
+    icon: Bot,
   },
 ];
 
