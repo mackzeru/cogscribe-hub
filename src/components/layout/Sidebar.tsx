@@ -7,6 +7,7 @@ import {
   Calendar,
   Users,
   Bot,
+  Mail,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -43,6 +44,11 @@ const navigation = [
     name: "Copilot",
     href: "/copilot",
     icon: Bot,
+  },
+  {
+    name: "Email",
+    href: "/email",
+    icon: Mail,
   },
 ];
 
