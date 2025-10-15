@@ -1,20 +1,64 @@
 import { useState } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Link } from "@tiptap/extension-link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Bold, 
+  Italic, 
+  Underline, 
+  List, 
+  ListOrdered, 
+  Heading1, 
+  Heading2, 
+  LinkIcon,
+  Undo,
+  Redo
+} from "lucide-react";
 
 const EmailComposer = () => {
   const [recipient, setRecipient] = useState("");
   const [subject, setSubject] = useState("");
-  const [content, setContent] = useState("");
   const [htmlOutput, setHtmlOutput] = useState("");
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      TextStyle,
+      Color,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline',
+        },
+      }),
+    ],
+    content: '<p>Start writing your email...</p>',
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4',
+      },
+    },
+  });
+
   const handleGenerateHTML = () => {
-    setHtmlOutput(content);
+    if (editor) {
+      setHtmlOutput(editor.getHTML());
+    }
+  };
+
+  const setLink = () => {
+    if (!editor) return;
+    const url = window.prompt('Enter URL:');
+    if (url) {
+      editor.chain().focus().setLink({ href: url }).run();
+    }
   };
 
   return (
@@ -50,26 +94,108 @@ const EmailComposer = () => {
             />
           </div>
 
-          {/* Quill Editor */}
+          {/* Tiptap Editor */}
           <div className="space-y-2">
             <Label>Email Content</Label>
-            <div className="bg-background border border-input rounded-md">
-              <ReactQuill
-                theme="snow"
-                value={content}
-                onChange={setContent}
-                className="h-64"
-                modules={{
-                  toolbar: [
-                    [{ header: [1, 2, 3, false] }],
-                    ["bold", "italic", "underline", "strike"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                    [{ color: [] }, { background: [] }],
-                    ["link", "image"],
-                    ["clean"],
-                  ],
-                }}
-              />
+            <div className="border border-input rounded-md bg-background">
+              {/* Toolbar */}
+              <div className="border-b border-input p-2 flex flex-wrap gap-1 bg-muted/30">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleBold().run()}
+                  className={editor?.isActive('bold') ? 'bg-muted' : ''}
+                >
+                  <Bold className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleItalic().run()}
+                  className={editor?.isActive('italic') ? 'bg-muted' : ''}
+                >
+                  <Italic className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleStrike().run()}
+                  className={editor?.isActive('strike') ? 'bg-muted' : ''}
+                >
+                  <Underline className="h-4 w-4" />
+                </Button>
+                <div className="w-px h-8 bg-border mx-1" />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                  className={editor?.isActive('heading', { level: 1 }) ? 'bg-muted' : ''}
+                >
+                  <Heading1 className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                  className={editor?.isActive('heading', { level: 2 }) ? 'bg-muted' : ''}
+                >
+                  <Heading2 className="h-4 w-4" />
+                </Button>
+                <div className="w-px h-8 bg-border mx-1" />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                  className={editor?.isActive('bulletList') ? 'bg-muted' : ''}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                  className={editor?.isActive('orderedList') ? 'bg-muted' : ''}
+                >
+                  <ListOrdered className="h-4 w-4" />
+                </Button>
+                <div className="w-px h-8 bg-border mx-1" />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={setLink}
+                >
+                  <LinkIcon className="h-4 w-4" />
+                </Button>
+                <div className="w-px h-8 bg-border mx-1" />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().undo().run()}
+                  disabled={!editor?.can().undo()}
+                >
+                  <Undo className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().redo().run()}
+                  disabled={!editor?.can().redo()}
+                >
+                  <Redo className="h-4 w-4" />
+                </Button>
+              </div>
+              {/* Editor Content */}
+              <EditorContent editor={editor} className="prose-editor" />
             </div>
           </div>
 
