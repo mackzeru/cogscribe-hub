@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import logoLight from "@/assets/logo.png";
 import { useTheme } from "next-themes";
+import { NotificationPopover } from "@/components/notifications/NotificationPopover";
 
 // Import your navigation config
 import {
@@ -166,6 +167,9 @@ const PrivateLayout = () => {
                   <Moon className="h-5 w-5 text-primary" />
                 )}
               </Button>
+
+              {/* Notifications */}
+              <NotificationPopover />
 
               {/* User Dropdown */}
               <DropdownMenu>
