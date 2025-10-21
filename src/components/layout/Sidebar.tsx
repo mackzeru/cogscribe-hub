@@ -1,13 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
-  FolderKanban,
-  CheckSquare,
-  Calendar,
   Users,
-  Bot,
+  UserCog,
+  Shield,
+  MapPin,
+  Megaphone,
+  DoorOpen,
+  DoorClosed,
+  Users2,
+  MessageSquare,
+  Settings,
+  Home,
   Mail,
+  Briefcase,
+  BriefcaseBusiness,
+  Server,
+  ServerCog,
+  Clipboard,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -21,40 +32,107 @@ const navigation = [
     icon: LayoutDashboard,
   },
   {
-    name: "Projects",
-    href: "/projects",
-    icon: FolderKanban,
-  },
-  {
-    name: "Tasks",
-    href: "/tasks",
-    icon: CheckSquare,
-  },
-  {
-    name: "Meetings",
-    href: "/meetings",
-    icon: Calendar,
-  },
-  {
-    name: "Team",
-    href: "/team",
+    name: "Users",
+    href: "/users",
     icon: Users,
   },
   {
-    name: "Copilot",
-    href: "/copilot",
-    icon: Bot,
+    name: "Roles",
+    href: "/roles",
+    icon: UserCog,
   },
   {
-    name: "Email",
-    href: "/email",
+    name: "Permissions",
+    href: "/permissions",
+    icon: Shield,
+  },
+  {
+    name: "State",
+    href: "/state",
+    icon: MapPin,
+  },
+  {
+    name: "Promotion Type",
+    href: "/promotion-type",
+    icon: Megaphone,
+  },
+  {
+    name: "Roommate",
+    href: "/roommate",
+    icon: Users2,
+  },
+  {
+    name: "Roommate Settings",
+    href: "/roommate-setting",
+    icon: Home,
+  },
+  {
+    name: "Room",
+    href: "/room",
+    icon: DoorOpen,
+  },
+  {
+    name: "Room Settings",
+    href: "/room-setting",
+    icon: DoorClosed,
+  },
+  {
+    name: "Job",
+    href: "/job",
+    icon: Briefcase,
+  },
+  {
+    name: "Job Setting",
+    href: "/job-setting",
+    icon: BriefcaseBusiness,
+  },
+  {
+    name: "Services",
+    href: "/services",
+    icon: Server,
+  },
+  {
+    name: "Business",
+    href: "/business",
+    icon: Briefcase,
+  },
+  {
+    name: "Business Services Setting",
+    href: "/busi-serv-setting",
+    icon: ServerCog,
+  },
+  {
+    name: "Contact Us",
+    href: "/contact-us",
     icon: Mail,
+  },
+  {
+    name: "Chat",
+    href: "/mychat",
+    icon: MessageSquare,
+  },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: Settings,
+  },
+  {
+    name: "CMS",
+    href: "/cms",
+    icon: Clipboard,
   },
 ];
 
 export const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    const saved = localStorage.getItem("drawer");
+    return saved ? saved === "true" : false;
+  });
   const location = useLocation();
+
+  useEffect(() => {
+    localStorage.setItem("drawer", collapsed.toString());
+  }, [collapsed]);
 
   return (
     <div
