@@ -1,8 +1,9 @@
-import { BarChart3, Calendar, CheckCircle, FolderOpen, Plus, TrendingUp } from "lucide-react";
+import { BarChart3, Calendar, CheckCircle, FolderOpen, Plus, TrendingUp, Bell, AlertCircle, Info, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data
 const stats = [
@@ -120,6 +121,64 @@ const recentMeetings = [
 ];
 
 export default function Dashboard() {
+  const { toast } = useToast();
+
+  const showSuccessNotification = () => {
+    toast({
+      title: "Success!",
+      description: "Your changes have been saved successfully.",
+      className: "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800",
+    });
+  };
+
+  const showErrorNotification = () => {
+    toast({
+      variant: "destructive",
+      title: "Error Occurred",
+      description: "Failed to complete the operation. Please try again.",
+    });
+  };
+
+  const showInfoNotification = () => {
+    toast({
+      title: "Information",
+      description: "You have 3 new messages and 5 pending tasks to review.",
+      className: "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800",
+    });
+  };
+
+  const showWarningNotification = () => {
+    toast({
+      title: "Warning",
+      description: "Your subscription will expire in 3 days. Please renew to continue.",
+      className: "bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800",
+    });
+  };
+
+  const showActionNotification = () => {
+    toast({
+      title: "New Update Available",
+      description: "Version 2.0 is ready to install.",
+      action: (
+        <Button 
+          size="sm" 
+          onClick={() => toast({ title: "Installing update..." })}
+          className="ml-auto"
+        >
+          Update Now
+        </Button>
+      ),
+    });
+  };
+
+  const showCustomNotification = () => {
+    toast({
+      title: "🎉 Achievement Unlocked!",
+      description: "You've completed 100 tasks this month. Great work!",
+      className: "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 dark:from-purple-950 dark:to-pink-950 dark:border-purple-800",
+    });
+  };
+
   return (
     <div className="space-y-6 icog-animate-in">
       {/* Header */}
@@ -256,6 +315,71 @@ export default function Dashboard() {
                 </Button>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notification Demo Section */}
+      <Card className="icog-card">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Bell className="mr-2 h-5 w-5" />
+            Notification Examples
+          </CardTitle>
+          <CardDescription>
+            Click the buttons below to see different notification styles and formats
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Button
+              onClick={showSuccessNotification}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Success Notification
+            </Button>
+            
+            <Button
+              onClick={showErrorNotification}
+              variant="destructive"
+              className="w-full"
+            >
+              <AlertCircle className="mr-2 h-4 w-4" />
+              Error Notification
+            </Button>
+            
+            <Button
+              onClick={showInfoNotification}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Info className="mr-2 h-4 w-4" />
+              Info Notification
+            </Button>
+            
+            <Button
+              onClick={showWarningNotification}
+              className="w-full bg-yellow-600 hover:bg-yellow-700 text-white"
+            >
+              <AlertTriangle className="mr-2 h-4 w-4" />
+              Warning Notification
+            </Button>
+            
+            <Button
+              onClick={showActionNotification}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <Zap className="mr-2 h-4 w-4" />
+              Notification with Action
+            </Button>
+            
+            <Button
+              onClick={showCustomNotification}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            >
+              <Bell className="mr-2 h-4 w-4" />
+              Custom Style Notification
+            </Button>
           </div>
         </CardContent>
       </Card>
