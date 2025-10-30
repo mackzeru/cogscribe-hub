@@ -126,10 +126,28 @@ export default function Dashboard() {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>("default");
 
   useEffect(() => {
-    if ("Notification" in window) {
-      setNotificationPermission(Notification.permission);
-    }
-  }, []);
+    const initNotifications = async () => {
+      if ("Notification" in window) {
+        const currentPermission = Notification.permission;
+        setNotificationPermission(currentPermission);
+        
+        // Automatically request permission on first load if not yet asked
+        if (currentPermission === "default") {
+          const permission = await Notification.requestPermission();
+          setNotificationPermission(permission);
+          
+          if (permission === "granted") {
+            toast({
+              title: "Notifications Enabled",
+              description: "You will now receive browser notifications.",
+            });
+          }
+        }
+      }
+    };
+    
+    initNotifications();
+  }, [toast]);
 
   const requestNotificationPermission = async () => {
     if ("Notification" in window && Notification.permission === "default") {
