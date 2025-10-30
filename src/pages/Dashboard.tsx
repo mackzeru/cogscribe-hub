@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data
@@ -122,60 +123,127 @@ const recentMeetings = [
 
 export default function Dashboard() {
   const { toast } = useToast();
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>("default");
+
+  useEffect(() => {
+    if ("Notification" in window) {
+      setNotificationPermission(Notification.permission);
+    }
+  }, []);
+
+  const requestNotificationPermission = async () => {
+    if ("Notification" in window && Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      
+      if (permission === "granted") {
+        toast({
+          title: "Notifications Enabled",
+          description: "You will now receive browser notifications.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Notifications Blocked",
+          description: "Please enable notifications in your browser settings.",
+        });
+      }
+    }
+  };
+
+  const showBrowserNotification = (title: string, options: NotificationOptions) => {
+    if ("Notification" in window) {
+      if (Notification.permission === "granted") {
+        new Notification(title, options);
+      } else if (Notification.permission === "default") {
+        toast({
+          title: "Permission Required",
+          description: "Please enable browser notifications first.",
+          action: (
+            <Button size="sm" onClick={requestNotificationPermission}>
+              Enable
+            </Button>
+          ),
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Notifications Blocked",
+          description: "Please enable notifications in your browser settings.",
+        });
+      }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Not Supported",
+        description: "Your browser doesn't support notifications.",
+      });
+    }
+  };
 
   const showSuccessNotification = () => {
-    toast({
-      title: "Success!",
-      description: "Your changes have been saved successfully.",
-      className: "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800",
+    showBrowserNotification("Success!", {
+      body: "Your changes have been saved successfully.",
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: "success",
     });
   };
 
   const showErrorNotification = () => {
-    toast({
-      variant: "destructive",
-      title: "Error Occurred",
-      description: "Failed to complete the operation. Please try again.",
+    showBrowserNotification("Error Occurred", {
+      body: "Failed to complete the operation. Please try again.",
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: "error",
+      requireInteraction: true,
     });
   };
 
   const showInfoNotification = () => {
-    toast({
-      title: "Information",
-      description: "You have 3 new messages and 5 pending tasks to review.",
-      className: "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800",
+    showBrowserNotification("Information", {
+      body: "You have 3 new messages and 5 pending tasks to review.",
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: "info",
     });
   };
 
   const showWarningNotification = () => {
-    toast({
-      title: "Warning",
-      description: "Your subscription will expire in 3 days. Please renew to continue.",
-      className: "bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800",
+    showBrowserNotification("Warning", {
+      body: "Your subscription will expire in 3 days. Please renew to continue.",
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: "warning",
+      requireInteraction: true,
     });
   };
 
   const showActionNotification = () => {
-    toast({
-      title: "New Update Available",
-      description: "Version 2.0 is ready to install.",
-      action: (
-        <Button 
-          size="sm" 
-          onClick={() => toast({ title: "Installing update..." })}
-          className="ml-auto"
-        >
-          Update Now
-        </Button>
-      ),
+    const notification = new Notification("New Update Available", {
+      body: "Version 2.0 is ready to install. Click to update now.",
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: "update",
+      requireInteraction: true,
     });
+
+    notification.onclick = () => {
+      window.focus();
+      toast({
+        title: "Installing Update...",
+        description: "The update will be installed shortly.",
+      });
+      notification.close();
+    };
   };
 
   const showCustomNotification = () => {
-    toast({
-      title: "🎉 Achievement Unlocked!",
-      description: "You've completed 100 tasks this month. Great work!",
-      className: "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 dark:from-purple-950 dark:to-pink-950 dark:border-purple-800",
+    showBrowserNotification("🎉 Achievement Unlocked!", {
+      body: "You've completed 100 tasks this month. Great work!",
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: "achievement",
     });
   };
 
@@ -324,13 +392,40 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Bell className="mr-2 h-5 w-5" />
-            Notification Examples
+            Browser Notification Examples
           </CardTitle>
           <CardDescription>
-            Click the buttons below to see different notification styles and formats
+            {notificationPermission === "granted" 
+              ? "Click the buttons below to trigger browser notifications"
+              : notificationPermission === "denied"
+              ? "Browser notifications are blocked. Please enable them in your browser settings."
+              : "Click 'Enable Notifications' to start receiving browser notifications"}
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {notificationPermission !== "granted" && (
+            <div className="mb-6 p-4 bg-muted rounded-lg border">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium mb-2">
+                    Browser notifications are {notificationPermission === "denied" ? "blocked" : "not enabled"}
+                  </p>
+                  {notificationPermission === "default" && (
+                    <Button onClick={requestNotificationPermission} size="sm">
+                      <Bell className="mr-2 h-4 w-4" />
+                      Enable Notifications
+                    </Button>
+                  )}
+                  {notificationPermission === "denied" && (
+                    <p className="text-sm text-muted-foreground">
+                      Go to your browser settings to enable notifications for this site.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Button
               onClick={showSuccessNotification}
