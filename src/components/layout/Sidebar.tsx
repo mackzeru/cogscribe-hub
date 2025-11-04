@@ -21,6 +21,7 @@ import {
   Clipboard,
   ChevronLeft,
   ChevronRight,
+  ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -120,6 +121,11 @@ const navigation = [
     name: "CMS",
     href: "/cms",
     icon: Clipboard,
+  },
+  {
+    name: "Image Resizer and Converter",
+    href: "/image-processor",
+    icon: ImageIcon,
   },
 ];
 
