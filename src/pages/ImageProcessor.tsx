@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Download, Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import imageCompression from "browser-image-compression";
 import { toast } from "sonner";
+import { ImageDropzone } from "@/components/image-processor/ImageDropzone";
+import { ImagePreview } from "@/components/image-processor/ImagePreview";
 
 type ImageFormat = "jpeg" | "png" | "webp" | "gif";
 
@@ -16,30 +18,51 @@ const ImageProcessor = () => {
 
   // Tab 1: Resizer
   const [resizerFile, setResizerFile] = useState<File | null>(null);
+  const [resizerPreview, setResizerPreview] = useState<string | null>(null);
+  const [resizerProcessed, setResizerProcessed] = useState<string | null>(null);
+  const [resizerProcessedSize, setResizerProcessedSize] = useState<number | null>(null);
   const [resizerFormat, setResizerFormat] = useState<ImageFormat>("jpeg");
   const [targetSize, setTargetSize] = useState<number>(1);
 
   // Tab 2: Converter
   const [converterFile, setConverterFile] = useState<File | null>(null);
+  const [converterPreview, setConverterPreview] = useState<string | null>(null);
+  const [converterProcessed, setConverterProcessed] = useState<string | null>(null);
+  const [converterProcessedSize, setConverterProcessedSize] = useState<number | null>(null);
   const [converterFormat, setConverterFormat] = useState<ImageFormat>("webp");
 
   // Tab 3: Combined
   const [combinedFile, setCombinedFile] = useState<File | null>(null);
+  const [combinedPreview, setCombinedPreview] = useState<string | null>(null);
+  const [combinedProcessed, setCombinedProcessed] = useState<string | null>(null);
+  const [combinedProcessedSize, setCombinedProcessedSize] = useState<number | null>(null);
   const [combinedFormat, setCombinedFormat] = useState<ImageFormat>("jpeg");
   const [targetWidth, setTargetWidth] = useState<number>(1920);
   const [targetHeight, setTargetHeight] = useState<number>(1080);
   const [combinedTargetSize, setCombinedTargetSize] = useState<number>(1);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (file: File | null) => void) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload a valid image file");
-        return;
-      }
-      setter(file);
-      toast.success("Image uploaded successfully");
-    }
+  const handleResizerFileSelect = (file: File) => {
+    setResizerFile(file);
+    setResizerProcessed(null);
+    setResizerProcessedSize(null);
+    const url = URL.createObjectURL(file);
+    setResizerPreview(url);
+  };
+
+  const handleConverterFileSelect = (file: File) => {
+    setConverterFile(file);
+    setConverterProcessed(null);
+    setConverterProcessedSize(null);
+    const url = URL.createObjectURL(file);
+    setConverterPreview(url);
+  };
+
+  const handleCombinedFileSelect = (file: File) => {
+    setCombinedFile(file);
+    setCombinedProcessed(null);
+    setCombinedProcessedSize(null);
+    const url = URL.createObjectURL(file);
+    setCombinedPreview(url);
   };
 
   const downloadImage = (blob: Blob, filename: string) => {
@@ -73,6 +96,10 @@ const ImageProcessor = () => {
       };
 
       const compressedFile = await imageCompression(resizerFile, options);
+      
+      const processedUrl = URL.createObjectURL(compressedFile);
+      setResizerProcessed(processedUrl);
+      setResizerProcessedSize(compressedFile.size);
       
       if (compressedFile.size > targetSizeKB * 1024) {
         toast.warning(`Achieved ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB (target: ${targetSize}MB)`);
@@ -116,6 +143,10 @@ const ImageProcessor = () => {
       canvas.toBlob(
         (blob) => {
           if (blob) {
+            const processedUrl = URL.createObjectURL(blob);
+            setConverterProcessed(processedUrl);
+            setConverterProcessedSize(blob.size);
+            
             const filename = `converted_${converterFile.name.split('.')[0]}.${converterFormat}`;
             downloadImage(blob, filename);
             toast.success(`Converted to ${converterFormat.toUpperCase()}`);
@@ -178,6 +209,10 @@ const ImageProcessor = () => {
 
       const compressedFile = await imageCompression(file, options);
       
+      const processedUrl = URL.createObjectURL(compressedFile);
+      setCombinedProcessed(processedUrl);
+      setCombinedProcessedSize(compressedFile.size);
+      
       const filename = `processed_${combinedFile.name.split('.')[0]}.${combinedFormat}`;
       downloadImage(compressedFile, filename);
       
@@ -213,22 +248,33 @@ const ImageProcessor = () => {
             <TabsContent value="resize" className="space-y-4 mt-4">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="resizer-upload">Upload Image</Label>
-                  <div className="mt-2 flex items-center gap-4">
-                    <Input
-                      id="resizer-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, setResizerFile)}
-                      className="cursor-pointer"
-                    />
+                  <Label>Upload Image</Label>
+                  <div className="mt-2">
+                    <ImageDropzone onFileSelect={handleResizerFileSelect} />
                     {resizerFile && (
-                      <span className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-2">
                         {resizerFile.name} ({(resizerFile.size / 1024 / 1024).toFixed(2)}MB)
-                      </span>
+                      </p>
                     )}
                   </div>
                 </div>
+
+                {resizerPreview && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <ImagePreview 
+                      title="Original Image" 
+                      imageUrl={resizerPreview} 
+                      fileSize={resizerFile?.size}
+                    />
+                    {resizerProcessed && (
+                      <ImagePreview 
+                        title="Processed Image" 
+                        imageUrl={resizerProcessed}
+                        fileSize={resizerProcessedSize || undefined}
+                      />
+                    )}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -281,22 +327,33 @@ const ImageProcessor = () => {
             <TabsContent value="convert" className="space-y-4 mt-4">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="converter-upload">Upload Image</Label>
-                  <div className="mt-2 flex items-center gap-4">
-                    <Input
-                      id="converter-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, setConverterFile)}
-                      className="cursor-pointer"
-                    />
+                  <Label>Upload Image</Label>
+                  <div className="mt-2">
+                    <ImageDropzone onFileSelect={handleConverterFileSelect} />
                     {converterFile && (
-                      <span className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-2">
                         {converterFile.name}
-                      </span>
+                      </p>
                     )}
                   </div>
                 </div>
+
+                {converterPreview && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <ImagePreview 
+                      title="Original Image" 
+                      imageUrl={converterPreview}
+                      fileSize={converterFile?.size}
+                    />
+                    {converterProcessed && (
+                      <ImagePreview 
+                        title="Converted Image" 
+                        imageUrl={converterProcessed}
+                        fileSize={converterProcessedSize || undefined}
+                      />
+                    )}
+                  </div>
+                )}
 
                 <div>
                   <Label htmlFor="converter-format">Output Format</Label>
@@ -321,7 +378,7 @@ const ImageProcessor = () => {
                     </>
                   ) : (
                     <>
-                      <Upload className="mr-2 h-4 w-4" />
+                      <Download className="mr-2 h-4 w-4" />
                       Convert & Download
                     </>
                   )}
@@ -333,22 +390,33 @@ const ImageProcessor = () => {
             <TabsContent value="combined" className="space-y-4 mt-4">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="combined-upload">Upload Image</Label>
-                  <div className="mt-2 flex items-center gap-4">
-                    <Input
-                      id="combined-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, setCombinedFile)}
-                      className="cursor-pointer"
-                    />
+                  <Label>Upload Image</Label>
+                  <div className="mt-2">
+                    <ImageDropzone onFileSelect={handleCombinedFileSelect} />
                     {combinedFile && (
-                      <span className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-2">
                         {combinedFile.name}
-                      </span>
+                      </p>
                     )}
                   </div>
                 </div>
+
+                {combinedPreview && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <ImagePreview 
+                      title="Original Image" 
+                      imageUrl={combinedPreview}
+                      fileSize={combinedFile?.size}
+                    />
+                    {combinedProcessed && (
+                      <ImagePreview 
+                        title="Processed Image" 
+                        imageUrl={combinedProcessed}
+                        fileSize={combinedProcessedSize || undefined}
+                      />
+                    )}
+                  </div>
+                )}
 
                 <div>
                   <Label htmlFor="combined-format">Output Format</Label>
